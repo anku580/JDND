@@ -26,7 +26,7 @@
                 <div class="mdui-col-xs-12 mdui-col-sm-10">
                     <div class="mdui-textfield-floating-label" style="margin-top:15px">
                         <i class="mdui-icon">Welcome：</i>
-                        <i class="mdui-icon" id="username" th:text="${username}"></i>
+                        <i class="mdui-icon" id="username" th:text="${sender}"></i>
                     </div>
                 </div>
                 <div class="mdui-col-xs-12 mdui-col-sm-10">
@@ -36,8 +36,8 @@
                         <input class="mdui-textfield-input" id="msg"/>
                     </div>
                     <div class="mdui-container" style="padding:20px 35px">
-                        <button class="mdui-btn mdui-color-theme-accent mdui-ripple"
-                                onclick="sendMsgToServer()">Send (enter)
+                        <button class="mdui-btn mdui-color-theme mdui-ripple"
+                        onclick="sendMsgToServer()">Send
                         </button>
                         <button class="mdui-btn mdui-color-theme mdui-ripple"
                                 onclick="clearMsg()">Clear
@@ -57,11 +57,9 @@
                     <span class="mdui-chip-icon mdui-color-blue">
                         <i class="mdui-icon material-icons">face</i></span>
                     <span class="mdui-chip-title">Online Users</span>
-                    <span class="mdui-chip-title chat-num">0</span>
+                    <span class="chat-num"></span>
                 </div>
-                <div class="message-container">
-
-                </div>
+                <div class="message-container"></div>
             </div>
 
         </div>
@@ -78,9 +76,9 @@
      */
     function getWebSocket() {
         /**
-         * WebSocket client PS：URL shows WebSocket protocal, port number, and then end point.
+         * WebSocket client PS：URL shows WebSocket protocol, port number, and then end point.
          */
-        var webSocket = new WebSocket(/*[[${webSocketUrl}]]*/ 'ws://localhost:8080/chat');
+        var webSocket = new WebSocket('ws://localhost:8090/chat');
         /**
          * websocket open connection.
          */
@@ -96,14 +94,14 @@
             //Receive Message from Server
             var message = JSON.parse(event.data) || {};
             var $messageContainer = $('.message-container');
-            if (message.type === 'SPEAK') {
+            <!--if (message.type === 'SPEAK') {-->
                 $messageContainer.append(
                     '<div class="mdui-card" style="margin: 10px 0;">' +
                     '<div class="mdui-card-primary">' +
-                    '<div class="mdui-card-content message-content">' + message.username + "：" + message.msg + '</div>' +
+                    '<div class="mdui-card-content message-content">' + message.sender + "：" + message.content + '</div>' +
                     '</div></div>');
-            }
-            $('.chat-num').text(message.onlineCount);
+            <!--}-->
+            $('.chat-num').text(message.onlineUsers);
             var $cards = $messageContainer.children('.mdui-card:visible').toArray();
             if ($cards.length > 5) {
                 $cards.forEach(function (item, index) {
@@ -137,7 +135,7 @@
     function sendMsgToServer() {
         var $message = $('#msg');
         if ($message.val()) {
-            webSocket.send(JSON.stringify({username: $('#username').text(), msg: $message.val()}));
+            webSocket.send(JSON.stringify({sender: $('#username').text(), content: $message.val()}));
             $message.val(null);
         }
     }
@@ -156,6 +154,7 @@
         var e = event || window.event || arguments.callee.caller.arguments[0];
         e.keyCode === 13 && sendMsgToServer();
     };
+
 </script>
 
 </body>
